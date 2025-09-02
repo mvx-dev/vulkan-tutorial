@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -40,6 +41,8 @@ class HelloTriangleApplication {
     }
 
     void cleanup() {
+        vkDestroyInstance(instance, nullptr);
+
         glfwDestroyWindow(window);
 
         glfwTerminate();
@@ -61,7 +64,6 @@ class HelloTriangleApplication {
 
         uint32_t glfwExtensionCount = 0;
         const char **glfwExtensions;
-
         glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
         createInfo.enabledExtensionCount = glfwExtensionCount;
@@ -69,7 +71,24 @@ class HelloTriangleApplication {
 
         createInfo.enabledLayerCount = 0;
 
-        VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
+        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create instance");
+        }
+
+        uint32_t extensionCount = 0;
+        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount,
+                                               nullptr);
+
+        std::vector<VkExtensionProperties> extensions(extensionCount);
+
+        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount,
+                                               extensions.data());
+
+        std::cout << "Available extensions:\n";
+
+        for (const auto &extension : extensions) {
+            std::cout << '\t' << extension.extensionName << '\n';
+        }
     }
 };
 
