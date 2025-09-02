@@ -6,7 +6,8 @@ VulkanTutorial: main.cpp
 
 .PHONY: test clean
 
-drun: VulkanTutorial
+drun:
+	g++ $(CLFAGS) -g -o VulkanTutorial main.cpp $(LDFLAGS)
 	./VulkanTutorial
 
 clean:
