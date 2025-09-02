@@ -6,7 +6,7 @@ VulkanTutorial: main.cpp
 
 .PHONY: test clean
 
-test: VulkanTutorial
+drun: VulkanTutorial
 	./VulkanTutorial
 
 clean:
