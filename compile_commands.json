@@ -1,0 +1,17 @@
+[
+ {
+  "directory": "/home/cheshire/code/c/vulkan-graphics/vulkan-tutorial",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-g",
+   "-Ithird_party/lwlog/include",
+   "-c",
+   "src/main.cpp",
+   "-o",
+   "build/main.o"
+  ],
+  "file": "src/main.cpp"
+ }
+]

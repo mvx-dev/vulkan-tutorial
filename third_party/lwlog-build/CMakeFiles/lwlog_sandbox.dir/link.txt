@@ -1,0 +1,1 @@
+/usr/sbin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/lwlog_sandbox.dir/link.d CMakeFiles/lwlog_sandbox.dir/Sandbox/Sandbox.cpp.o -o lwlog_sandbox  liblwlog_lib.a

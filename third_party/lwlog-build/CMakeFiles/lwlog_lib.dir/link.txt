@@ -1,0 +1,2 @@
+/usr/sbin/ar qc liblwlog_lib.a CMakeFiles/lwlog_lib.dir/lwlog/include/details/topic_registry.cpp.o CMakeFiles/lwlog_lib.dir/lwlog/include/details/pattern/attribute.cpp.o
+/usr/sbin/ranlib liblwlog_lib.a

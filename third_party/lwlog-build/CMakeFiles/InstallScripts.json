@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/cheshire/code/c/vulkan-graphics/vulkan-tutorial/third_party/lwlog-build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
