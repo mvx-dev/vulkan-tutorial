@@ -6,9 +6,14 @@ VulkanTutorial: main.cpp
 
 .PHONY: test clean
 
-drun:
+debug:
+	cmake --build build/ --target install --config Debug
 	g++ $(CLFAGS) -g -o build/VulkanTutorial src/main.cpp $(LDFLAGS)
 	./build/VulkanTutorial
 
+release:
+	cmake --build build/ --target install --config Release
+	g++ $(CLFAGS) -o build/VulkanTutorial src/main.cpp $(LDFLAGS)
+
 clean:
-	rm -f build/VulkanTutorial
+	rm -f build/
