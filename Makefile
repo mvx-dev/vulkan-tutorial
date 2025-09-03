@@ -1,22 +1,29 @@
-CFLAGS = -std=c++17 -O2
-LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -g -Iinclude
+LDFLAGS = -Llib -llwlog -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
-VulkanTutorial: main.cpp
-	g++ $(CFLAGS) -o build/VulkanTutorial src/main.cpp $(LDFLAGS)
+SRC_DIR = src
+BUILD_DIR = build
+BIN = $(BUILD_DIR)/VulkanTutorial
 
-lwlog:
-	cmake -B build/ -S src/lwlog/ -DCMAKE_INSTALL_PREFIX=.
+# Find all .cpp files under src/
+SRC = $(wildcard $(SRC_DIR)/*.cpp)
+# Map src/foo.cpp → build/foo.o
+OBJ = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRC))
 
-.PHONY: test clean
+all: $(BIN)
 
-debug:
-	cmake --build build/ --target install --config Debug
-	g++ $(CLFAGS) -g -o build/VulkanTutorial src/main.cpp $(LDFLAGS)
-	./build/VulkanTutorial
+$(BIN): $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
-release:
-	cmake --build build/ --target install --config Release
-	g++ $(CLFAGS) -o build/VulkanTutorial src/main.cpp $(LDFLAGS)
+# Compile rule: build/%.o from src/%.cpp
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Ensure build directory exists
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
 clean:
-	rm -f build/
+	rm -rf $(BUILD_DIR)
+

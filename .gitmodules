@@ -1,3 +1,0 @@
-[submodule "src/lwlog"]
-	path = src/lwlog
-	url = https://github.com/ChristianPanov/lwlog
