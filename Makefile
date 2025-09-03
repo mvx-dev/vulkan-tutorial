@@ -4,6 +4,9 @@ LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 VulkanTutorial: main.cpp
 	g++ $(CFLAGS) -o build/VulkanTutorial src/main.cpp $(LDFLAGS)
 
+lwlog:
+	cmake -B build/ -S src/lwlog/ -DCMAKE_INSTALL_PREFIX=.
+
 .PHONY: test clean
 
 debug:
