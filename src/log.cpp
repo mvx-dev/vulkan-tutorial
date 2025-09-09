@@ -68,12 +68,17 @@ void worker_function() {
 void init_global() {
     auto console = std::make_shared<SyncLogger>("CONSOLE");
 
+    console->set_pattern("[%T.%e] [:^10%n] .level([:^12%l]) [%$/%!:%#]: %v");
+
     console->add_sink(
         std::make_shared<lwlog::sinks::file_sink<
             lwlog::default_memory_buffer_limits, lwlog::default_flush_policy,
             lwlog::multi_threaded_policy>>("./console.log"));
 
     auto valid = std::make_shared<SyncLogger>("VALIDATION");
+
+    valid->set_pattern("[%T.%e] [:^10%n] .level([:^12%l]) [%$/%!:%#]: %v");
+
     valid->add_sink(
         std::make_shared<lwlog::sinks::file_sink<
             lwlog::default_memory_buffer_limits, lwlog::default_flush_policy,
