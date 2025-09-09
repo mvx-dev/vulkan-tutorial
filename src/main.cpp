@@ -1,3 +1,5 @@
+#include <optional>
+#include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -6,6 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <map>
 #include <stdexcept>
 #include <vector>
 
@@ -45,6 +48,12 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
     }
 }
 
+struct QueueFamilyIndices {
+    std::optional<uint32_t> graphicsFamily;
+
+    bool isComplete() { return graphicsFamily.has_value(); }
+};
+
 class HelloTriangleApplication {
   public:
     void run() {
@@ -71,6 +80,115 @@ class HelloTriangleApplication {
     void initVulkan() {
         createInstance();
         setupDebugMessenger();
+    }
+
+    void pickPhysicalDevice() {
+        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+
+        uint32_t deviceCount = 0;
+        vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+        if (deviceCount == 0) {
+            LOG_CONSOLE_CRIT("Failed to find GPUs with Vulkan support");
+            throw std::runtime_error("Failed to find GPUs with Vulkan support");
+        }
+
+        std::vector<VkPhysicalDevice> devices(deviceCount);
+        vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+        for (const auto &device : devices) {
+            if (isDeviceSuitable(device)) {
+                physicalDevice = device;
+                break;
+            }
+        }
+
+        if (physicalDevice == VK_NULL_HANDLE) {
+            LOG_CONSOLE_CRIT("Failed to find a suitable GPU");
+            throw std::runtime_error("Failed to find a suitable GPU");
+        }
+
+        std::multimap<int, VkPhysicalDevice> candidates;
+
+        for (const auto &device : devices) {
+            int score = rateDeviceSuitability(device);
+            candidates.insert(std::make_pair(score, device));
+        }
+
+        if (candidates.rbegin()->first > 0) {
+            physicalDevice = candidates.rbegin()->second;
+        } else {
+            LOG_CONSOLE_CRIT("Failed to find a suitable GPU");
+            throw std::runtime_error("Failed to find a suitable GPU");
+        }
+    }
+
+    bool isDeviceSuitable(VkPhysicalDevice device) {
+        VkPhysicalDeviceProperties deviceProperties;
+        VkPhysicalDeviceFeatures deviceFeatures;
+
+        vkGetPhysicalDeviceProperties(device, &deviceProperties);
+        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+        // Properties - properties of the device (dedicated, vulkan version,
+        // etc)
+        // Features - features that the device support (VR, geometry
+        // shader, etc)
+
+        QueueFamilyIndices indices = findQueueFamilies(device);
+
+        return indices.isComplete();
+    }
+
+    int rateDeviceSuitability(VkPhysicalDevice device) {
+        VkPhysicalDeviceProperties deviceProperties;
+        VkPhysicalDeviceFeatures deviceFeatures;
+
+        vkGetPhysicalDeviceProperties(device, &deviceProperties);
+        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+        int score = 0;
+
+        if (deviceProperties.deviceType ==
+            VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+            score += 1000;
+        }
+
+        // Larger possible size of textures affect graphics quality
+        score += deviceProperties.limits.maxImageDimension2D;
+
+        if (!deviceFeatures.geometryShader) {
+            return 0;
+        }
+
+        return score;
+    }
+
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
+        QueueFamilyIndices indices;
+
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount,
+                                                 nullptr);
+
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount,
+                                                 queueFamilies.data());
+
+        int i = 0;
+        for (const auto &queueFamily : queueFamilies) {
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                indices.graphicsFamily = i;
+            }
+
+            if (indices.isComplete()) {
+                break;
+            }
+
+            i++;
+        }
+
+        return indices;
     }
 
     void mainLoop() {
@@ -219,10 +337,6 @@ class HelloTriangleApplication {
                   VkDebugUtilsMessageTypeFlagsEXT messageType,
                   const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
                   void *pUserData) {
-        // TODO: Replace with logger
-        // std::cerr << "Validation layer: " << pCallbackData->pMessage
-        //           << std::endl;
-
         switch (messageSeverity) {
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
             LOG_VALID_DEBUG(pCallbackData->pMessage);
@@ -278,7 +392,7 @@ int main() {
     try {
         app.run();
     } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        LOG_CONSOLE_ERROR(e.what());
         return EXIT_FAILURE;
     }
 
