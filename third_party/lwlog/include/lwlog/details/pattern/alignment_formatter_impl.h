@@ -1,8 +1,8 @@
 #pragma once
 
 namespace lwlog::details {
-alignment_info::alignment_info(char fill_char, align_side side,
-                               std::uint8_t width, std::string_view flag)
+inline alignment_info::alignment_info(char fill_char, align_side side,
+                                      std::uint8_t width, std::string_view flag)
     : fill_char{fill_char}, side{side}, width{width}, flag{flag} {}
 
 template <typename BufferLimits>
