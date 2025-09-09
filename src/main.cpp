@@ -1,4 +1,3 @@
-#include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -16,7 +15,7 @@ const uint32_t HEIGHT = 600;
 const std::vector<const char *> validationLayers = {
     "VK_LAYER_KHRONOS_validation"};
 
-// NOTE: NDEBUG - not debug
+// NOTE: NDEBUG = not debug
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
 #else
@@ -269,12 +268,10 @@ class HelloTriangleApplication {
 };
 
 int main() {
-    Log::init();
     Log::init_global();
 
     LOG_CONSOLE_DEBUG("Console");
     LOG_VALID_DEBUG("Validation");
-    LOG_GLOBAL_DEBUG("Global");
 
     HelloTriangleApplication app;
 
