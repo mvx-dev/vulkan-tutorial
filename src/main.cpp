@@ -1,7 +1,8 @@
+#include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include "lwlog/lwlog.h"
+#include "log.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -220,8 +221,23 @@ class HelloTriangleApplication {
                   const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
                   void *pUserData) {
         // TODO: Replace with logger
-        std::cerr << "Validation layer: " << pCallbackData->pMessage
-                  << std::endl;
+        // std::cerr << "Validation layer: " << pCallbackData->pMessage
+        //           << std::endl;
+
+        switch (messageSeverity) {
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+            LOG_VALID_DEBUG(pCallbackData->pMessage);
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+            LOG_VALID_INFO(pCallbackData->pMessage);
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+            LOG_VALID_WARN(pCallbackData->pMessage);
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+            LOG_VALID_ERROR(pCallbackData->pMessage);
+            break;
+        }
 
         // Message severity levels:
         //  - VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT - diagnostic
@@ -253,6 +269,13 @@ class HelloTriangleApplication {
 };
 
 int main() {
+    Log::init();
+    Log::init_global();
+
+    LOG_CONSOLE_DEBUG("Console");
+    LOG_VALID_DEBUG("Validation");
+    LOG_GLOBAL_DEBUG("Global");
+
     HelloTriangleApplication app;
 
     try {
